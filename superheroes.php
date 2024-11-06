@@ -1,5 +1,6 @@
 <?php
 
+
 $superheroes = [
   [
       "id" => 1,
@@ -63,10 +64,23 @@ $superheroes = [
   ], 
 ];
 
-?>
+if (isset($_GET['query']) && !empty($_GET['query'])) {
+    $query = strtolower(trim($_GET['query']));
+    $result = array_filter($superheroes, function($superhero) use ($query) {
+        return strtolower($superhero['name']) === $query || strtolower($superhero['alias']) === $query;
+    });
 
-<ul>
-<?php foreach ($superheroes as $superhero): ?>
-  <li><?= $superhero['alias']; ?></li>
-<?php endforeach; ?>
-</ul>
+    if (!empty($result)) {
+        // Return the matched superhero details in JSON format
+        echo json_encode(array_values($result));
+    } else {
+        // Return an empty array if no match is found
+        echo json_encode([]);
+    }
+} else {
+    // If no query, return the list of all superhero aliases
+    $aliases = array_column($superheroes, 'alias');
+    echo json_encode($aliases);
+}
+
+?>
